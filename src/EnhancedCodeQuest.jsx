@@ -679,7 +679,7 @@ if (score >= 90) {
               
               <p>for i in range(5):</p>
               <p>    print(f"Iteration: {'{'} i {'}'}")</p>
-              {/* eslint-enable */}
+              
               <br />
               <p className="text-gray-500"># Python while loop</p>
               
@@ -1507,16 +1507,16 @@ console.log(doubled);`}
               <p>    print("Minor")</p>
               <br />
               <p># Loop example</p>
-              {/* eslint-disable */}
+              
               <p>for skill in skills:</p>
               <p>    print(f"I know {'{'} skill {'}'}")</p>
-              {/* eslint-enable */}
+              
               <br />
               <p># Function definition</p>
-              {/* eslint-disable */}
+             
               <p>def greet(person_name):</p>
               <p>    return f"Hello, {'{'} person_name {'}'} !"</p>
-              {/* eslint-enable */}
+             
               <br />
               <p>message = greet(name)</p>
               <p>print(message)  # Output: Hello, Python Learner!</p>
@@ -1616,10 +1616,10 @@ print(mystery_function([1, 2, 3, 4, 5, 6, 7, 8]))`}
               <br />
               <p># Route with path parameter</p>
               <p>@app.route('/user/&lt;username&gt;')</p>
-              {/* eslint-disable */}
+             
               <p>def user_profile(username):</p>
               <p>    return f"Profile page for {'{'} username {'}'}"</p>
-              {/* eslint-enable */}
+              
               <br />
               <p># API endpoint returning JSON</p>
               <p>@app.route('/api/data')</p>
