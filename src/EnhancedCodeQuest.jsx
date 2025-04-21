@@ -547,10 +547,18 @@ const EnhancedCodeQuest = () => {
         <div
           className={`${currentTheme.panel} p-10 rounded-xl max-w-2xl mx-auto text-center ${textClass}`}
         >
-          <h1 className={`text-5xl font-bold ${currentTheme.accent} mb-6`}>
-            Code Quest
-          </h1>
-          <h2 className="text-3xl mb-8">The Path of the Programmer</h2>
+          <div className="flex flex-col items-center mb-8">
+            <img
+              src="/logo.svg"
+              alt="Code Quest Logo"
+              className="w-40 h-40 mb-4"
+            />
+            <h1 className={`text-5xl font-bold ${currentTheme.accent} mb-2`}>
+              Code Quest
+            </h1>
+            <h2 className="text-3xl">The Path of the Programmer</h2>
+            <div className="mt-4 w-32 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded mx-auto"></div>
+          </div>
 
           <p className="mb-6 text-lg">
             Welcome, brave soul! You stand at the threshold of a journey that
@@ -637,9 +645,16 @@ const EnhancedCodeQuest = () => {
       >
         <div className="max-w-6xl mx-auto">
           <header className="flex justify-between items-center mb-8">
-            <h1 className={`text-3xl font-bold ${currentTheme.accent}`}>
-              Code Quest: Central Hub
-            </h1>
+            <div className="flex items-center">
+              <img
+                src="/logo.svg"
+                alt="Code Quest Logo"
+                className="w-12 h-12 mr-3"
+              />
+              <h1 className={`text-3xl font-bold ${currentTheme.accent}`}>
+                Code Quest: Central Hub
+              </h1>
+            </div>
 
             {/* User profile & controls */}
             <div className="flex items-center space-x-4">
@@ -1022,9 +1037,16 @@ const EnhancedCodeQuest = () => {
       >
         <div className="max-w-4xl mx-auto">
           <header className="flex justify-between items-center mb-8">
-            <h1 className={`text-3xl font-bold ${currentTheme.accent}`}>
-              Player Profile
-            </h1>
+            <div className="flex items-center">
+              <img
+                src="/logo.svg"
+                alt="Code Quest Logo"
+                className="w-12 h-12 mr-3"
+              />
+              <h1 className={`text-3xl font-bold ${currentTheme.accent}`}>
+                Player Profile
+              </h1>
+            </div>
             <button
               onClick={() => goToScene("hub")}
               className={`${currentTheme.primary} text-white px-4 py-2 rounded-lg`}
@@ -1167,9 +1189,16 @@ const EnhancedCodeQuest = () => {
       >
         <div className="max-w-6xl mx-auto">
           <header className="flex justify-between items-center mb-8">
-            <h1 className={`text-3xl font-bold ${currentTheme.accent}`}>
-              Code Playground
-            </h1>
+            <div className="flex items-center">
+              <img
+                src="/logo.svg"
+                alt="Code Quest Logo"
+                className="w-12 h-12 mr-3"
+              />
+              <h1 className={`text-3xl font-bold ${currentTheme.accent}`}>
+                Code Playground
+              </h1>
+            </div>
             <div className="flex items-center space-x-4">
               <div className={`${currentTheme.panel} p-2 rounded-lg`}>
                 <div className="flex items-center gap-2">
@@ -2783,12 +2812,23 @@ print(mystery_function([1, 2, 3, 4, 5, 6, 7, 8]))`}
       <div
         className={`${currentTheme.panel} p-8 rounded-xl max-w-4xl w-full mx-auto ${textClass}`}
       >
-        <h1
-          className={`text-4xl font-bold ${currentTheme.accent} mb-6 text-center`}
-        >
-          Code Quest
-        </h1>
-        <h2 className="text-2xl mb-8 text-center">Choose Your Profile</h2>
+        <div className="flex flex-col items-center mb-8">
+          <img
+            src="/logo.svg"
+            alt="Code Quest Logo"
+            className="w-32 h-32 mb-4"
+          />
+          <div className="text-center">
+            <h1 className={`text-4xl font-bold ${currentTheme.accent} mb-2`}>
+              Code Quest
+            </h1>
+            <h2 className="text-2xl">The Path of the Programmer</h2>
+            <div className="mt-4 w-24 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded mx-auto"></div>
+          </div>
+        </div>
+        <h3 className="text-xl font-semibold mb-6 text-center">
+          Choose Your Profile
+        </h3>
 
         {/* Profile list */}
         <div className="mb-8">
