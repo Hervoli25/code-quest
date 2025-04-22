@@ -1,0 +1,67 @@
+/* Code written and maintained by Elisee Kajingu */
+/* Mobile-specific styles */
+
+/* Prevent text from being too small on mobile */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Improve touch targets for mobile */
+button, 
+a, 
+input[type="button"], 
+input[type="submit"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Improve form elements on mobile */
+input, 
+select, 
+textarea {
+  font-size: 16px; /* Prevents iOS zoom on focus */
+}
+
+/* Fix for mobile overflow issues */
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Improve scrolling on iOS */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Media query for extra small devices */
+@media (max-width: 479px) {
+  .xs\:hidden {
+    display: none;
+  }
+  
+  .xs\:block {
+    display: block;
+  }
+  
+  .xs\:flex {
+    display: flex;
+  }
+  
+  .xs\:text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  .xs\:text-xs {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  
+  .xs\:p-1 {
+    padding: 0.25rem;
+  }
+  
+  .xs\:p-2 {
+    padding: 0.5rem;
+  }
+}

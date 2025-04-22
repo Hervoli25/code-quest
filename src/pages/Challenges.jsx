@@ -1,19 +1,15 @@
 // Code written and maintained by Elisee Kajingu
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { supabase } from "../supabaseClient";
-import { showErrorAlert } from "../utils/alerts";
 
-export default function Challenges({ session }) {
+export default function Challenges() {
   const [challenges, setChallenges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [difficulty, setDifficulty] = useState("all");
 
-  useEffect(() => {
-    fetchChallenges();
-  }, [filter, difficulty]);
-
-  const fetchChallenges = async () => {
+  const fetchChallenges = useCallback(async () => {
+    // Fetch challenges based on current filters
     try {
       setLoading(true);
 
@@ -60,7 +56,12 @@ export default function Challenges({ session }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter, difficulty]);
+
+  // Fetch challenges on component mount and when filters change
+  useEffect(() => {
+    fetchChallenges();
+  }, [fetchChallenges]);
 
   const difficultyColor = (level) => {
     switch (level) {
@@ -80,18 +81,20 @@ export default function Challenges({ session }) {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Coding Challenges</h1>
+    <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">
+        Coding Challenges
+      </h1>
 
-      <div className="mb-8 bg-white p-4 rounded-lg shadow-md">
+      <div className="mb-6 sm:mb-8 bg-white p-3 sm:p-4 rounded-lg shadow-md">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div className="mb-4 md:mb-0">
-            <h2 className="text-xl font-semibold mb-2">Filters</h2>
+            <h2 className="text-lg sm:text-xl font-semibold mb-2">Filters</h2>
             <div className="flex flex-wrap gap-2">
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full sm:w-auto px-2 sm:px-3 py-1 sm:py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="all">All Categories</option>
                 <option value="algorithms">Algorithms</option>
@@ -104,7 +107,7 @@ export default function Challenges({ session }) {
               <select
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full sm:w-auto px-2 sm:px-3 py-1 sm:py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="all">All Difficulties</option>
                 <option value="Beginner">Beginner</option>
@@ -116,10 +119,10 @@ export default function Challenges({ session }) {
             </div>
           </div>
 
-          <div>
+          <div className="w-full md:w-auto">
             <button
               onClick={fetchChallenges}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+              className="w-full md:w-auto px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm"
             >
               Refresh Challenges
             </button>
@@ -132,15 +135,17 @@ export default function Challenges({ session }) {
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {challenges.map((challenge) => (
             <div
               key={challenge.id}
               className="bg-white rounded-lg shadow-md overflow-hidden"
             >
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-bold">{challenge.title}</h3>
+              <div className="p-3 sm:p-6">
+                <div className="flex justify-between items-start mb-2 sm:mb-4">
+                  <h3 className="text-lg sm:text-xl font-bold">
+                    {challenge.title}
+                  </h3>
                   <span
                     className={`text-xs px-2 py-1 rounded-full ${difficultyColor(challenge.difficulty)}`}
                   >
@@ -148,16 +153,16 @@ export default function Challenges({ session }) {
                   </span>
                 </div>
 
-                <p className="text-gray-600 mb-4 line-clamp-3">
+                <p className="text-gray-600 mb-2 sm:mb-4 line-clamp-3 text-sm sm:text-base">
                   {challenge.description}
                 </p>
 
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="flex flex-wrap gap-1 sm:gap-2 mb-3 sm:mb-4">
                   {challenge.tags &&
                     challenge.tags.map((tag, index) => (
                       <span
                         key={index}
-                        className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full"
+                        className="text-xs bg-gray-100 text-gray-800 px-1 sm:px-2 py-1 rounded-full"
                       >
                         {tag}
                       </span>
@@ -165,12 +170,12 @@ export default function Challenges({ session }) {
                 </div>
 
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">
+                  <span className="text-xs sm:text-sm text-gray-500">
                     XP: {challenge.xp || 50}
                   </span>
                   <a
                     href={`/playground?challenge=${challenge.id}`}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm"
+                    className="px-3 sm:px-4 py-1 sm:py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-xs sm:text-sm"
                   >
                     Start Challenge
                   </a>

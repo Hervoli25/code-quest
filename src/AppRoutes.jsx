@@ -97,33 +97,42 @@ export default function AppRoutes({ session }) {
         </div>
 
         {/* Footer with policy links */}
-        <footer className="bg-gray-800 text-white py-6">
+        <footer className="bg-gray-800 text-white py-4 sm:py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="mb-4 md:mb-0">
-                <p className="text-sm">
+                <p className="text-sm text-center md:text-left">
                   © {new Date().getFullYear()} Code Quest. All rights reserved.
                 </p>
               </div>
-              <div className="flex flex-wrap justify-center gap-4 text-sm">
-                <a href="/terms" className="text-gray-300 hover:text-white">
+              <div className="flex flex-wrap justify-center gap-2 sm:gap-4 text-xs sm:text-sm">
+                <a
+                  href="/terms"
+                  className="text-gray-300 hover:text-white px-1 py-1"
+                >
                   Terms & Conditions
                 </a>
-                <a href="/privacy" className="text-gray-300 hover:text-white">
+                <a
+                  href="/privacy"
+                  className="text-gray-300 hover:text-white px-1 py-1"
+                >
                   Privacy Policy
                 </a>
-                <a href="/cookies" className="text-gray-300 hover:text-white">
+                <a
+                  href="/cookies"
+                  className="text-gray-300 hover:text-white px-1 py-1"
+                >
                   Cookie Policy
                 </a>
                 <a
                   href="/disclaimer"
-                  className="text-gray-300 hover:text-white"
+                  className="text-gray-300 hover:text-white px-1 py-1"
                 >
                   Disclaimer
                 </a>
                 <a
                   href="/user-guide"
-                  className="text-gray-300 hover:text-white"
+                  className="text-gray-300 hover:text-white px-1 py-1"
                 >
                   User Guide
                 </a>

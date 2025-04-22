@@ -1,12 +1,12 @@
 // Code written and maintained by Elisee Kajingu
-import { useState, useEffect, useRef } from 'react';
-import { supabase } from '../supabaseClient';
-import { showConfirmAlert } from '../utils/alerts';
+import { useState, useEffect, useRef } from "react";
+import { supabase } from "../supabaseClient";
+import { showConfirmAlert } from "../utils/alerts";
 
 export default function Navigation({ session, onSignOut }) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [username, setUsername] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
+  const [username, setUsername] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const userMenuRef = useRef(null);
 
   useEffect(() => {
@@ -16,79 +16,139 @@ export default function Navigation({ session, onSignOut }) {
         setIsUserMenuOpen(false);
       }
     };
-    
-    document.addEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  
+
   useEffect(() => {
     if (session) {
       const getProfile = async () => {
         try {
           const { user } = session;
-          
+
           const { data, error } = await supabase
-            .from('profiles')
-            .select('username, avatar_url')
-            .eq('id', user.id)
+            .from("profiles")
+            .select("username, avatar_url")
+            .eq("id", user.id)
             .single();
-          
+
           if (error) throw error;
-          
+
           if (data) {
-            setUsername(data.username || user.email.split('@')[0]);
-            setAvatarUrl(data.avatar_url || '');
+            setUsername(data.username || user.email.split("@")[0]);
+            setAvatarUrl(data.avatar_url || "");
           }
         } catch (error) {
-          console.error('Error loading profile:', error);
+          console.error("Error loading profile:", error);
         }
       };
-      
+
       getProfile();
     }
   }, [session]);
 
   const handleSignOut = async () => {
     const result = await showConfirmAlert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      'Yes, sign out',
-      'Cancel'
+      "Sign Out",
+      "Are you sure you want to sign out?",
+      "Yes, sign out",
+      "Cancel",
     );
-    
+
     if (result.isConfirmed) {
       const { error } = await supabase.auth.signOut();
-      if (error) console.error('Error signing out:', error);
+      if (error) console.error("Error signing out:", error);
       if (onSignOut) onSignOut();
     }
   };
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
   return (
     <nav className="bg-indigo-600 text-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
               <span className="text-xl font-bold">Code Quest</span>
             </div>
             <div className="hidden md:ml-6 md:flex md:space-x-8">
-              <a href="/" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-white hover:text-indigo-200">
+              <a
+                href="/"
+                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-white hover:text-indigo-200"
+              >
                 Home
               </a>
-              <a href="/playground" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-white hover:text-indigo-200">
+              <a
+                href="/playground"
+                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-white hover:text-indigo-200"
+              >
                 Playground
               </a>
-              <a href="/challenges" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-white hover:text-indigo-200">
+              <a
+                href="/challenges"
+                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-white hover:text-indigo-200"
+              >
                 Challenges
               </a>
-              <a href="/leaderboard" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-white hover:text-indigo-200">
+              <a
+                href="/leaderboard"
+                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-white hover:text-indigo-200"
+              >
                 Leaderboard
               </a>
             </div>
           </div>
-          
+
+          {/* Mobile menu button */}
+          <div className="-mr-2 flex items-center md:hidden">
+            <button
+              onClick={toggleMobileMenu}
+              className="inline-flex items-center justify-center p-2 rounded-md text-indigo-200 hover:text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+            >
+              <span className="sr-only">Open main menu</span>
+              {/* Icon when menu is closed */}
+              <svg
+                className={`${mobileMenuOpen ? "hidden" : "block"} h-6 w-6`}
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+              {/* Icon when menu is open */}
+              <svg
+                className={`${mobileMenuOpen ? "block" : "hidden"} h-6 w-6`}
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
           {session ? (
             <div className="flex items-center">
               <div className="ml-3 relative" ref={userMenuRef}>
@@ -113,12 +173,14 @@ export default function Navigation({ session, onSignOut }) {
                     )}
                   </button>
                 </div>
-                
+
                 {isUserMenuOpen && (
                   <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 z-50">
                     <div className="px-4 py-2 text-sm text-gray-700 border-b">
                       <p className="font-medium">{username}</p>
-                      <p className="text-gray-500 truncate">{session.user.email}</p>
+                      <p className="text-gray-500 truncate">
+                        {session.user.email}
+                      </p>
                     </div>
                     <a
                       href="/profile"
@@ -154,34 +216,49 @@ export default function Navigation({ session, onSignOut }) {
           )}
         </div>
       </div>
-      
+
       {/* Mobile menu */}
-      <div className="md:hidden border-t border-indigo-500">
+      <div
+        className={`${mobileMenuOpen ? "block" : "hidden"} md:hidden border-t border-indigo-500`}
+      >
         <div className="pt-2 pb-3 space-y-1">
           <a
             href="/"
             className="block pl-3 pr-4 py-2 text-base font-medium text-white hover:bg-indigo-700"
+            onClick={() => setMobileMenuOpen(false)}
           >
             Home
           </a>
           <a
             href="/playground"
             className="block pl-3 pr-4 py-2 text-base font-medium text-white hover:bg-indigo-700"
+            onClick={() => setMobileMenuOpen(false)}
           >
             Playground
           </a>
           <a
             href="/challenges"
             className="block pl-3 pr-4 py-2 text-base font-medium text-white hover:bg-indigo-700"
+            onClick={() => setMobileMenuOpen(false)}
           >
             Challenges
           </a>
           <a
             href="/leaderboard"
             className="block pl-3 pr-4 py-2 text-base font-medium text-white hover:bg-indigo-700"
+            onClick={() => setMobileMenuOpen(false)}
           >
             Leaderboard
           </a>
+          {session && (
+            <a
+              href="/profile"
+              className="block pl-3 pr-4 py-2 text-base font-medium text-white hover:bg-indigo-700"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Profile
+            </a>
+          )}
         </div>
       </div>
     </nav>

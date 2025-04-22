@@ -9,8 +9,19 @@
   <meta name="theme-color" content="#4F46E5" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Code Quest</title>
-  <!-- Add Tailwind CSS via CDN -->
+  <!-- Add Tailwind CSS via CDN with custom config -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          screens: {
+            'xs': '480px',
+          }
+        }
+      }
+    }
+  </script>
 
 </head>
 

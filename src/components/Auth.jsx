@@ -129,8 +129,8 @@ export default function Auth() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="bg-white p-4 sm:p-8 rounded-xl shadow-md w-full max-w-md">
         <h1 className="text-3xl font-bold text-center mb-2">Code Quest</h1>
         <p className="text-center text-gray-600 mb-6">
           {isSignUp
@@ -230,7 +230,7 @@ export default function Auth() {
           </div>
 
           {!isSignUp && (
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
               <div className="flex items-center">
                 <input
                   id="remember-me"
@@ -329,7 +329,7 @@ export default function Auth() {
               </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() =>
