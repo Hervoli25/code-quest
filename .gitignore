@@ -7,9 +7,20 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+
+# Build
 dist
 dist-ssr
+
+# Environment variables
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# Local files
 *.local
 
 # Editor directories and files
@@ -22,3 +33,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Supabase
+.supabase/
+
+# Testing
+coverage/
+
+# Temporary files
+.tmp/
+temp/

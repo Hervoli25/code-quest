@@ -185,10 +185,23 @@ const CodeQuestPlaygroundIntegration = ({
               className={`w-full p-2 rounded border ${currentTheme.border} bg-opacity-50 bg-white`}
             >
               <option value="all">All Languages</option>
-              <option value="javascript">JavaScript</option>
-              <option value="html">HTML</option>
-              <option value="css">CSS</option>
-              <option value="python">Python</option>
+
+              {/* Basic Languages */}
+              <optgroup label="Basic Languages">
+                <option value="javascript">JavaScript</option>
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+                <option value="python">Python</option>
+              </optgroup>
+
+              {/* Expanded Language Tracks */}
+              <optgroup label="Expanded Language Tracks">
+                <option value="java">Java</option>
+                <option value="ruby">Ruby</option>
+                <option value="go">Go</option>
+                <option value="csharp">C#</option>
+                <option value="swift">Swift</option>
+              </optgroup>
             </select>
           </div>
 
@@ -242,10 +255,12 @@ const CodeQuestPlaygroundIntegration = ({
                   setSelectedChallenge(challenge);
                   setShowExplanation(false);
                 }}
-                className={`border ${currentTheme.border} rounded-lg p-4 cursor-pointer hover:shadow-lg transition-shadow relative ${
+                className={`border-2 ${currentTheme.border} rounded-lg p-4 cursor-pointer hover:shadow-xl transition-all transform hover:-translate-y-1 relative ${
                   completedChallenges.includes(challenge.id)
-                    ? "bg-green-50"
-                    : "bg-white"
+                    ? "bg-green-50 border-green-300"
+                    : theme === "cyber" || theme === "space"
+                      ? "bg-gray-800 border-gray-700 text-white"
+                      : "bg-white"
                 }`}
               >
                 {/* Completion badge */}
@@ -259,32 +274,73 @@ const CodeQuestPlaygroundIntegration = ({
                 <div
                   className={`inline-block px-2 py-1 rounded text-xs mb-2 ${
                     challenge.language === "javascript"
-                      ? "bg-yellow-100 text-yellow-800"
+                      ? "bg-yellow-200 text-yellow-900 font-semibold"
                       : challenge.language === "html"
-                        ? "bg-orange-100 text-orange-800"
+                        ? "bg-orange-200 text-orange-900 font-semibold"
                         : challenge.language === "css"
-                          ? "bg-blue-100 text-blue-800"
+                          ? "bg-blue-200 text-blue-900 font-semibold"
                           : challenge.language === "python"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
+                            ? "bg-green-200 text-green-900 font-semibold"
+                            : challenge.language === "java"
+                              ? "bg-red-200 text-red-900 font-semibold"
+                              : challenge.language === "ruby"
+                                ? "bg-pink-200 text-pink-900 font-semibold"
+                                : challenge.language === "go"
+                                  ? "bg-cyan-200 text-cyan-900 font-semibold"
+                                  : challenge.language === "csharp"
+                                    ? "bg-purple-200 text-purple-900 font-semibold"
+                                    : challenge.language === "swift"
+                                      ? "bg-indigo-200 text-indigo-900 font-semibold"
+                                      : "bg-gray-200 text-gray-900 font-semibold"
                   }`}
                 >
-                  {challenge.language}
+                  {challenge.language === "csharp" ? "C#" : challenge.language}
                 </div>
 
                 {/* Difficulty badge */}
                 <div
                   className={`inline-block px-2 py-1 rounded text-xs mb-2 ml-2 ${
                     challenge.difficulty === "beginner"
-                      ? "bg-green-100 text-green-800"
+                      ? "bg-green-200 text-green-900 font-semibold"
                       : challenge.difficulty === "intermediate"
-                        ? "bg-yellow-100 text-yellow-800"
+                        ? "bg-yellow-200 text-yellow-900 font-semibold"
                         : challenge.difficulty === "advanced"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-gray-100 text-gray-800"
+                          ? "bg-orange-200 text-orange-900 font-semibold"
+                          : challenge.difficulty === "expert"
+                            ? "bg-red-200 text-red-900 font-semibold"
+                            : challenge.difficulty === "master"
+                              ? "bg-purple-200 text-purple-900 font-semibold"
+                              : "bg-gray-200 text-gray-900 font-semibold"
                   }`}
                 >
-                  {challenge.difficulty}
+                  <span className="flex items-center">
+                    {challenge.difficulty === "expert" && (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-3 w-3 mr-1"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                    {challenge.difficulty === "master" && (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-3 w-3 mr-1"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    )}
+                    {challenge.difficulty.charAt(0).toUpperCase() +
+                      challenge.difficulty.slice(1)}
+                  </span>
                 </div>
 
                 <h3 className="text-lg font-bold mb-2">{challenge.title}</h3>
@@ -322,20 +378,81 @@ const CodeQuestPlaygroundIntegration = ({
           </button>
 
           {!showExplanation && (
-            <div
-              className={`${
-                selectedChallenge.language === "javascript"
-                  ? "bg-yellow-100 text-yellow-800"
-                  : selectedChallenge.language === "html"
-                    ? "bg-orange-100 text-orange-800"
-                    : selectedChallenge.language === "css"
-                      ? "bg-blue-100 text-blue-800"
-                      : selectedChallenge.language === "python"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
-              } px-3 py-1 rounded-lg text-sm font-medium`}
-            >
-              {selectedChallenge.language.toUpperCase()}
+            <div className="flex space-x-2">
+              {/* Language badge */}
+              <div
+                className={`${
+                  selectedChallenge.language === "javascript"
+                    ? "bg-yellow-200 text-yellow-900 font-semibold"
+                    : selectedChallenge.language === "html"
+                      ? "bg-orange-200 text-orange-900 font-semibold"
+                      : selectedChallenge.language === "css"
+                        ? "bg-blue-200 text-blue-900 font-semibold"
+                        : selectedChallenge.language === "python"
+                          ? "bg-green-200 text-green-900 font-semibold"
+                          : selectedChallenge.language === "java"
+                            ? "bg-red-200 text-red-900 font-semibold"
+                            : selectedChallenge.language === "ruby"
+                              ? "bg-pink-200 text-pink-900 font-semibold"
+                              : selectedChallenge.language === "go"
+                                ? "bg-cyan-200 text-cyan-900 font-semibold"
+                                : selectedChallenge.language === "csharp"
+                                  ? "bg-purple-200 text-purple-900 font-semibold"
+                                  : selectedChallenge.language === "swift"
+                                    ? "bg-indigo-200 text-indigo-900 font-semibold"
+                                    : "bg-gray-200 text-gray-900 font-semibold"
+                } px-3 py-1 rounded-lg text-sm font-medium`}
+              >
+                {selectedChallenge.language === "csharp"
+                  ? "C#"
+                  : selectedChallenge.language.toUpperCase()}
+              </div>
+
+              {/* Difficulty badge */}
+              <div
+                className={`px-3 py-1 rounded-lg text-sm font-medium ${
+                  selectedChallenge.difficulty === "beginner"
+                    ? "bg-green-200 text-green-900 font-semibold"
+                    : selectedChallenge.difficulty === "intermediate"
+                      ? "bg-yellow-200 text-yellow-900 font-semibold"
+                      : selectedChallenge.difficulty === "advanced"
+                        ? "bg-orange-200 text-orange-900 font-semibold"
+                        : selectedChallenge.difficulty === "expert"
+                          ? "bg-red-200 text-red-900 font-semibold"
+                          : selectedChallenge.difficulty === "master"
+                            ? "bg-purple-200 text-purple-900 font-semibold"
+                            : "bg-gray-200 text-gray-900 font-semibold"
+                }`}
+              >
+                <span className="flex items-center">
+                  {selectedChallenge.difficulty === "expert" && (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-3 w-3 mr-1"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
+                  {selectedChallenge.difficulty === "master" && (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-3 w-3 mr-1"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  )}
+                  {selectedChallenge.difficulty.charAt(0).toUpperCase() +
+                    selectedChallenge.difficulty.slice(1)}
+                </span>
+              </div>
             </div>
           )}
 

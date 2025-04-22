@@ -14,11 +14,23 @@ Code Quest is an interactive, gamified learning platform designed to teach progr
 - **Multiple Themes**: Choose between Fantasy, Cyberpunk, and Space themes to customize your experience
 - **Profile System**: Create and manage multiple profiles to track progress for different users
 
+### 🤖 Adaptive Learning System
+
+- **Personalized Difficulty**: Dynamic challenge levels based on your performance
+- **AI Recommendations**: Smart suggestions for what to learn next based on your strengths and weaknesses
+- **Spaced Repetition**: Optimized review scheduling to maximize long-term retention
+
 ### 💻 Comprehensive Coding Challenges
 
 - **Fundamental Concepts**: Variables, conditionals, loops, functions, and data structures
 - **Multiple Languages**: JavaScript, HTML, CSS, Python, and more
 - **Frameworks & Libraries**: React, Django, Flask, and Tailwind CSS
+
+### 🚀 Expanded Language Tracks
+
+- **Additional Languages**: Java, Ruby, Go, C#, and Swift
+- **Specialized Paths**: Data Science, Mobile Development, and Game Development
+- **Advanced Topics**: Design Patterns, Algorithms, and System Architecture
 
 ### 🏆 Progress Tracking
 

@@ -175,6 +175,96 @@ const codeChallenges = {
       solution:
         "function filterEvenNumbers(numbers) {\n  return numbers.filter(number => number % 2 === 0);\n}\n\n// Test your function\nconsole.log(filterEvenNumbers([1, 2, 3, 4, 5, 6])); // should return [2, 4, 6]\nconsole.log(filterEvenNumbers([7, 9, 11, 13])); // should return []",
     },
+
+    // Advanced - Closures
+    {
+      id: "js-closures-1",
+      title: "Create a Counter Factory",
+      description:
+        'Create a function called "createCounter" that returns a counter function. Each counter function should maintain its own count that starts at 0 and increments by 1 each time it\'s called.',
+      difficulty: "advanced",
+      category: "closures",
+      language: "javascript",
+      starterCode:
+        "function createCounter() {\n  // Your code here\n  \n}\n\n// Test your function\nconst counter1 = createCounter();\nconst counter2 = createCounter();\n\nconsole.log(counter1()); // should return 0\nconsole.log(counter1()); // should return 1\nconsole.log(counter2()); // should return 0 (separate counter)\nconsole.log(counter1()); // should return 2\nconsole.log(counter2()); // should return 1",
+      hints: [
+        "Use a closure to maintain state between function calls",
+        "Initialize a local variable in the outer function",
+        "Return a function that has access to that variable",
+      ],
+      tests: [
+        {
+          description: "First call to counter should return 0",
+          test: 'const counter = createCounter(); if (counter() !== 0) throw new Error("First call should return 0");',
+        },
+        {
+          description: "Second call to counter should return 1",
+          test: 'const counter = createCounter(); counter(); if (counter() !== 1) throw new Error("Second call should return 1");',
+        },
+        {
+          description: "Separate counters should maintain separate counts",
+          test: 'const c1 = createCounter(); const c2 = createCounter(); c1(); if (c2() !== 0) throw new Error("Second counter should start at 0");',
+        },
+      ],
+      solution:
+        "function createCounter() {\n  let count = -1;\n  return function() {\n    count += 1;\n    return count;\n  };\n}\n\n// Test your function\nconst counter1 = createCounter();\nconst counter2 = createCounter();\n\nconsole.log(counter1()); // should return 0\nconsole.log(counter1()); // should return 1\nconsole.log(counter2()); // should return 0 (separate counter)\nconsole.log(counter1()); // should return 2\nconsole.log(counter2()); // should return 1",
+    },
+
+    // Expert - Async Programming
+    {
+      id: "js-async-1",
+      title: "Promise Chain",
+      description:
+        'Create a function called "processInSequence" that takes an array of asynchronous functions and executes them in sequence, passing the result of each function to the next one. Return a promise that resolves with the final result.',
+      difficulty: "expert",
+      category: "async-programming",
+      language: "javascript",
+      starterCode:
+        "function processInSequence(asyncFunctions, initialValue) {\n  // Your code here\n  \n}\n\n// Test your function\nconst asyncDouble = x => Promise.resolve(x * 2);\nconst asyncIncrement = x => Promise.resolve(x + 1);\nconst asyncSquare = x => Promise.resolve(x * x);\n\nprocessInSequence([asyncDouble, asyncIncrement, asyncSquare], 3)\n  .then(result => console.log(result)) // should log 49: (3*2+1)^2 = 7^2 = 49\n  .catch(error => console.error(error));",
+      hints: [
+        "Use Array.reduce() with promises",
+        "Start with Promise.resolve(initialValue)",
+        "Chain each async function using .then()",
+      ],
+      tests: [
+        {
+          description: "Should process functions in sequence",
+          test: "const asyncDouble = x => Promise.resolve(x * 2); const asyncIncrement = x => Promise.resolve(x + 1); const asyncSquare = x => Promise.resolve(x * x); return processInSequence([asyncDouble, asyncIncrement, asyncSquare], 3).then(result => { if (result !== 49) throw new Error(`Expected 49, got ${result}`); });",
+        },
+      ],
+      solution:
+        "function processInSequence(asyncFunctions, initialValue) {\n  return asyncFunctions.reduce(\n    (promise, asyncFunc) => promise.then(asyncFunc),\n    Promise.resolve(initialValue)\n  );\n}\n\n// Test your function\nconst asyncDouble = x => Promise.resolve(x * 2);\nconst asyncIncrement = x => Promise.resolve(x + 1);\nconst asyncSquare = x => Promise.resolve(x * x);\n\nprocessInSequence([asyncDouble, asyncIncrement, asyncSquare], 3)\n  .then(result => console.log(result)) // should log 49: (3*2+1)^2 = 7^2 = 49\n  .catch(error => console.error(error));",
+    },
+
+    // Master - Design Patterns
+    {
+      id: "js-design-patterns-1",
+      title: "Implement the Observer Pattern",
+      description:
+        'Implement a simple event system with "subscribe", "unsubscribe", and "publish" methods. The system should allow callbacks to subscribe to events, unsubscribe from events, and publish events with data.',
+      difficulty: "master",
+      category: "design-patterns",
+      language: "javascript",
+      starterCode:
+        "class EventSystem {\n  // Your code here\n  \n}\n\n// Test your implementation\nconst events = new EventSystem();\n\n// Subscribe to events\nconst handler1 = data => console.log('Handler 1:', data);\nconst handler2 = data => console.log('Handler 2:', data);\n\nevents.subscribe('userLoggedIn', handler1);\nevents.subscribe('userLoggedIn', handler2);\nevents.subscribe('userLoggedOut', handler1);\n\n// Publish events\nevents.publish('userLoggedIn', { user: 'Alice' });\n// Should log:\n// Handler 1: { user: 'Alice' }\n// Handler 2: { user: 'Alice' }\n\n// Unsubscribe handler1 from userLoggedIn\nevents.unsubscribe('userLoggedIn', handler1);\n\n// Publish again\nevents.publish('userLoggedIn', { user: 'Bob' });\n// Should only log:\n// Handler 2: { user: 'Bob' }\n\nevents.publish('userLoggedOut', { user: 'Alice' });\n// Should log:\n// Handler 1: { user: 'Alice' }",
+      hints: [
+        "Use a Map to store event types and their handlers",
+        "Each event type should have an array of handler functions",
+        "Make sure to handle cases where events or handlers don't exist",
+      ],
+      tests: [
+        {
+          description: "Should allow subscribing to events",
+          test: 'const events = new EventSystem(); let called = false; events.subscribe("test", () => { called = true; }); events.publish("test"); if (!called) throw new Error("Event handler was not called");',
+        },
+        {
+          description: "Should allow unsubscribing from events",
+          test: 'const events = new EventSystem(); let called = false; const handler = () => { called = true; }; events.subscribe("test", handler); events.unsubscribe("test", handler); events.publish("test"); if (called) throw new Error("Event handler was called after unsubscribing");',
+        },
+      ],
+      solution:
+        "class EventSystem {\n  constructor() {\n    this.events = new Map();\n  }\n  \n  subscribe(eventName, handler) {\n    if (!this.events.has(eventName)) {\n      this.events.set(eventName, []);\n    }\n    \n    this.events.get(eventName).push(handler);\n  }\n  \n  unsubscribe(eventName, handler) {\n    if (!this.events.has(eventName)) return;\n    \n    const handlers = this.events.get(eventName);\n    const index = handlers.indexOf(handler);\n    \n    if (index !== -1) {\n      handlers.splice(index, 1);\n    }\n  }\n  \n  publish(eventName, data) {\n    if (!this.events.has(eventName)) return;\n    \n    const handlers = this.events.get(eventName);\n    handlers.forEach(handler => handler(data));\n  }\n}\n\n// Test your implementation\nconst events = new EventSystem();\n\n// Subscribe to events\nconst handler1 = data => console.log('Handler 1:', data);\nconst handler2 = data => console.log('Handler 2:', data);\n\nevents.subscribe('userLoggedIn', handler1);\nevents.subscribe('userLoggedIn', handler2);\nevents.subscribe('userLoggedOut', handler1);\n\n// Publish events\nevents.publish('userLoggedIn', { user: 'Alice' });\n// Should log:\n// Handler 1: { user: 'Alice' }\n// Handler 2: { user: 'Alice' }\n\n// Unsubscribe handler1 from userLoggedIn\nevents.unsubscribe('userLoggedIn', handler1);\n\n// Publish again\nevents.publish('userLoggedIn', { user: 'Bob' });\n// Should only log:\n// Handler 2: { user: 'Bob' }\n\nevents.publish('userLoggedOut', { user: 'Alice' });\n// Should log:\n// Handler 1: { user: 'Alice' }",
+    },
   ],
 
   // HTML CHALLENGES
@@ -269,6 +359,243 @@ const codeChallenges = {
       tests: [],
       solution:
         "def celsius_to_fahrenheit(celsius):\n    return celsius * 9/5 + 32\n\n# Test your function\nprint(celsius_to_fahrenheit(0))  # should return 32.0\nprint(celsius_to_fahrenheit(100))  # should return 212.0\nprint(celsius_to_fahrenheit(-40))  # should return -40.0",
+    },
+
+    // Intermediate - List Comprehensions
+    {
+      id: "py-list-comp-1",
+      title: "List Comprehension Filter",
+      description:
+        'Write a function called "filter_words" that takes a list of words and a minimum length, and returns a new list containing only the words that have at least that many characters. Use a list comprehension.',
+      difficulty: "intermediate",
+      category: "list-comprehensions",
+      language: "python",
+      starterCode:
+        "def filter_words(words, min_length):\n    # Your code here using list comprehension\n    pass\n\n# Test your function\nwords = ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig']\nprint(filter_words(words, 5))  # should return ['apple', 'banana', 'cherry', 'elderberry']\nprint(filter_words(words, 6))  # should return ['banana', 'cherry', 'elderberry']",
+      hints: [
+        "Use the syntax [expression for item in iterable if condition]",
+        "The condition should check if len(word) >= min_length",
+        "List comprehensions are more concise than using a for loop",
+      ],
+      tests: [],
+      solution:
+        "def filter_words(words, min_length):\n    return [word for word in words if len(word) >= min_length]\n\n# Test your function\nwords = ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig']\nprint(filter_words(words, 5))  # should return ['apple', 'banana', 'cherry', 'elderberry']\nprint(filter_words(words, 6))  # should return ['banana', 'cherry', 'elderberry']",
+    },
+
+    // Advanced - Decorators
+    {
+      id: "py-decorators-1",
+      title: "Create a Timing Decorator",
+      description:
+        'Create a decorator called "timing_decorator" that measures and prints the time it takes for a function to execute.',
+      difficulty: "advanced",
+      category: "decorators",
+      language: "python",
+      starterCode:
+        "import time\n\n# Create your timing_decorator here\n\n\n# Test your decorator\n@timing_decorator\ndef slow_function():\n    # Simulate a slow function\n    time.sleep(1)\n    return 'Function completed'\n\nprint(slow_function())  # Should print timing info and return 'Function completed'",
+      hints: [
+        "Use the time module to measure execution time",
+        "A decorator is a function that takes another function as an argument",
+        "Use a nested wrapper function to capture the function's execution time",
+      ],
+      tests: [],
+      solution:
+        "import time\n\ndef timing_decorator(func):\n    def wrapper(*args, **kwargs):\n        start_time = time.time()\n        result = func(*args, **kwargs)\n        end_time = time.time()\n        print(f'Function {func.__name__} took {end_time - start_time:.4f} seconds to run')\n        return result\n    return wrapper\n\n# Test your decorator\n@timing_decorator\ndef slow_function():\n    # Simulate a slow function\n    time.sleep(1)\n    return 'Function completed'\n\nprint(slow_function())  # Should print timing info and return 'Function completed'",
+    },
+
+    // Expert - Generators
+    {
+      id: "py-generators-1",
+      title: "Implement a Prime Number Generator",
+      description:
+        'Create a generator function called "prime_generator" that yields prime numbers indefinitely. A prime number is a natural number greater than 1 that is not divisible by any positive integer other than 1 and itself.',
+      difficulty: "expert",
+      category: "generators",
+      language: "python",
+      starterCode:
+        "def prime_generator():\n    # Your code here\n    pass\n\n# Test your generator\nprimes = prime_generator()\nfor _ in range(10):\n    print(next(primes))  # Should print the first 10 prime numbers: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29",
+      hints: [
+        "Use the 'yield' keyword to create a generator function",
+        "Check if a number is prime by testing divisibility by all integers from 2 to sqrt(n)",
+        "Use a while True loop to generate primes indefinitely",
+      ],
+      tests: [],
+      solution:
+        "def prime_generator():\n    # Start with 2, the first prime number\n    yield 2\n    \n    # Check odd numbers starting from 3\n    num = 3\n    while True:\n        is_prime = True\n        # Check divisibility up to the square root of num\n        for i in range(2, int(num**0.5) + 1):\n            if num % i == 0:\n                is_prime = False\n                break\n        \n        if is_prime:\n            yield num\n        \n        # Move to the next odd number (skip even numbers)\n        num += 2\n\n# Test your generator\nprimes = prime_generator()\nfor _ in range(10):\n    print(next(primes))  # Should print the first 10 prime numbers: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29",
+    },
+
+    // Master - Metaclasses
+    {
+      id: "py-metaclasses-1",
+      title: "Create a Singleton Metaclass",
+      description:
+        'Implement a metaclass called "SingletonMeta" that ensures any class using it as a metaclass will only ever have one instance, no matter how many times the class is instantiated.',
+      difficulty: "master",
+      category: "metaclasses",
+      language: "python",
+      starterCode:
+        "# Define your SingletonMeta metaclass here\n\n\n# Test your metaclass\nclass Database(metaclass=SingletonMeta):\n    def __init__(self):\n        print('Database initialized')\n\n# These should refer to the same instance\ndb1 = Database()\ndb2 = Database()\n\n# Should print True\nprint(db1 is db2)",
+      hints: [
+        "A metaclass is a class that defines how other classes are created",
+        "Override the __call__ method to control instance creation",
+        "Use a class variable to store the single instance",
+      ],
+      tests: [],
+      solution:
+        "class SingletonMeta(type):\n    _instances = {}\n    \n    def __call__(cls, *args, **kwargs):\n        if cls not in cls._instances:\n            cls._instances[cls] = super().__call__(*args, **kwargs)\n        return cls._instances[cls]\n\n# Test your metaclass\nclass Database(metaclass=SingletonMeta):\n    def __init__(self):\n        print('Database initialized')\n\n# These should refer to the same instance\ndb1 = Database()\ndb2 = Database()\n\n# Should print True\nprint(db1 is db2)",
+    },
+  ],
+
+  // JAVA CHALLENGES
+  java: [
+    {
+      id: "java-basics-1",
+      title: "Hello Java",
+      description:
+        "Create a simple Java program that prints 'Hello, Java!' to the console.",
+      difficulty: "beginner",
+      category: "basics",
+      language: "java",
+      starterCode:
+        "public class HelloJava {\n    public static void main(String[] args) {\n        // Your code here\n        \n    }\n}",
+      hints: [
+        "Use System.out.println() to print to the console",
+        "Make sure to include the semicolon at the end of the statement",
+        "Java is case-sensitive",
+      ],
+      tests: [],
+      solution:
+        'public class HelloJava {\n    public static void main(String[] args) {\n        System.out.println("Hello, Java!");\n    }\n}',
+    },
+
+    // OOP - Classes and Objects
+    {
+      id: "java-oop-1",
+      title: "Create a Student Class",
+      description:
+        "Create a Student class with name, age, and grade properties, a constructor, and a method to display student information.",
+      difficulty: "intermediate",
+      category: "object-oriented-programming",
+      language: "java",
+      starterCode:
+        '// Create your Student class here\n\n\n// Test your class\npublic class Main {\n    public static void main(String[] args) {\n        Student student = new Student("Alice", 15, 10);\n        student.displayInfo();  // Should print: Name: Alice, Age: 15, Grade: 10\n    }\n}',
+      hints: [
+        "Define instance variables for name, age, and grade",
+        "Create a constructor that initializes these variables",
+        "Implement a displayInfo() method to print the student's information",
+      ],
+      tests: [],
+      solution:
+        'class Student {\n    private String name;\n    private int age;\n    private int grade;\n    \n    public Student(String name, int age, int grade) {\n        this.name = name;\n        this.age = age;\n        this.grade = grade;\n    }\n    \n    public void displayInfo() {\n        System.out.println("Name: " + name + ", Age: " + age + ", Grade: " + grade);\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        Student student = new Student("Alice", 15, 10);\n        student.displayInfo();  // Should print: Name: Alice, Age: 15, Grade: 10\n    }\n}',
+    },
+
+    // Data Structures
+    {
+      id: "java-data-structures-1",
+      title: "Implement a Stack",
+      description:
+        "Implement a simple stack data structure with push, pop, and peek operations using an array.",
+      difficulty: "advanced",
+      category: "data-structures",
+      language: "java",
+      starterCode:
+        "class Stack {\n    // Your implementation here\n    \n}\n\npublic class Main {\n    public static void main(String[] args) {\n        Stack stack = new Stack();\n        stack.push(1);\n        stack.push(2);\n        stack.push(3);\n        \n        System.out.println(stack.peek());  // Should print: 3\n        System.out.println(stack.pop());   // Should print: 3\n        System.out.println(stack.pop());   // Should print: 2\n        System.out.println(stack.pop());   // Should print: 1\n    }\n}",
+      hints: [
+        "Use an array to store the stack elements",
+        "Keep track of the top of the stack with an index variable",
+        "Handle edge cases like empty stack and stack overflow",
+      ],
+      tests: [],
+      solution:
+        'class Stack {\n    private int[] array;\n    private int top;\n    private int capacity;\n    \n    public Stack() {\n        capacity = 10;  // Default capacity\n        array = new int[capacity];\n        top = -1;  // Stack is initially empty\n    }\n    \n    public void push(int item) {\n        if (top == capacity - 1) {\n            // Stack overflow\n            System.out.println("Stack is full");\n            return;\n        }\n        \n        array[++top] = item;\n    }\n    \n    public int pop() {\n        if (top == -1) {\n            // Stack underflow\n            System.out.println("Stack is empty");\n            return -1;\n        }\n        \n        return array[top--];\n    }\n    \n    public int peek() {\n        if (top == -1) {\n            // Stack is empty\n            System.out.println("Stack is empty");\n            return -1;\n        }\n        \n        return array[top];\n    }\n}\n\npublic class Main {\n    public static void main(String[] args) {\n        Stack stack = new Stack();\n        stack.push(1);\n        stack.push(2);\n        stack.push(3);\n        \n        System.out.println(stack.peek());  // Should print: 3\n        System.out.println(stack.pop());   // Should print: 3\n        System.out.println(stack.pop());   // Should print: 2\n        System.out.println(stack.pop());   // Should print: 1\n    }\n}',
+    },
+  ],
+
+  // RUBY CHALLENGES
+  ruby: [
+    {
+      id: "ruby-basics-1",
+      title: "Hello Ruby",
+      description:
+        "Create a simple Ruby program that prints 'Hello, Ruby!' to the console.",
+      difficulty: "beginner",
+      category: "basics",
+      language: "ruby",
+      starterCode: "# Your code here\n\n",
+      hints: [
+        "Use puts to print to the console",
+        "Ruby doesn't require semicolons",
+        "Strings can be enclosed in single or double quotes",
+      ],
+      tests: [],
+      solution: 'puts "Hello, Ruby!"',
+    },
+  ],
+
+  // GO CHALLENGES
+  go: [
+    {
+      id: "go-basics-1",
+      title: "Hello Go",
+      description:
+        "Create a simple Go program that prints 'Hello, Go!' to the console.",
+      difficulty: "beginner",
+      category: "basics",
+      language: "go",
+      starterCode:
+        'package main\n\nimport "fmt"\n\nfunc main() {\n    // Your code here\n    \n}\n',
+      hints: [
+        "Use fmt.Println() to print to the console",
+        "Go requires explicit imports",
+        "The main function is the entry point of a Go program",
+      ],
+      tests: [],
+      solution:
+        'package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, Go!")\n}\n',
+    },
+  ],
+
+  // C# CHALLENGES
+  csharp: [
+    {
+      id: "csharp-basics-1",
+      title: "Hello C#",
+      description:
+        "Create a simple C# program that prints 'Hello, C#!' to the console.",
+      difficulty: "beginner",
+      category: "basics",
+      language: "csharp",
+      starterCode:
+        "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        // Your code here\n        \n    }\n}\n",
+      hints: [
+        "Use Console.WriteLine() to print to the console",
+        "C# statements end with a semicolon",
+        "C# is case-sensitive",
+      ],
+      tests: [],
+      solution:
+        'using System;\n\nclass Program\n{\n    static void Main()\n    {\n        Console.WriteLine("Hello, C#!");\n    }\n}\n',
+    },
+  ],
+
+  // SWIFT CHALLENGES
+  swift: [
+    {
+      id: "swift-basics-1",
+      title: "Hello Swift",
+      description:
+        "Create a simple Swift program that prints 'Hello, Swift!' to the console.",
+      difficulty: "beginner",
+      category: "basics",
+      language: "swift",
+      starterCode: "// Your code here\n\n",
+      hints: [
+        "Use print() to output to the console",
+        "Swift doesn't require semicolons",
+        "Strings are enclosed in double quotes",
+      ],
+      tests: [],
+      solution: 'print("Hello, Swift!")',
     },
   ],
 };

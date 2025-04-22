@@ -19,6 +19,18 @@ const EnhancedCodeQuest = () => {
     lastSaved: null,
     totalPlayTime: 0,
     sessionsCompleted: 0,
+
+    // Adaptive Learning System data
+    performanceMetrics: {
+      correctAnswers: 0,
+      totalAttempts: 0,
+      averageResponseTime: 0,
+      streakCount: 0,
+      lastReviewDates: {}, // Tracks when each skill was last reviewed
+    },
+    difficultyLevel: "normal", // easy, normal, hard
+    recommendedTopics: [], // AI-recommended topics to study next
+    reviewSchedule: [], // Topics due for review based on spaced repetition
   });
 
   // Skills tracking
@@ -30,7 +42,7 @@ const EnhancedCodeQuest = () => {
     functions: 0,
     dataStructures: 0,
 
-    // Languages & technologies
+    // Basic Languages & technologies
     html: 0,
     css: 0,
     javascript: 0,
@@ -39,6 +51,23 @@ const EnhancedCodeQuest = () => {
     django: 0,
     flask: 0,
     tailwind: 0,
+
+    // Expanded Language Tracks
+    java: 0,
+    ruby: 0,
+    go: 0,
+    csharp: 0,
+    swift: 0,
+
+    // Specialized Paths
+    dataScience: 0,
+    mobileDev: 0,
+    gameDev: 0,
+
+    // Advanced Topics
+    designPatterns: 0,
+    algorithms: 0,
+    systemArchitecture: 0,
   });
 
   // Track completed quests
@@ -355,13 +384,28 @@ const EnhancedCodeQuest = () => {
       lastSaved: null,
       totalPlayTime: 0,
       sessionsCompleted: 0,
+
+      // Reset Adaptive Learning System data
+      performanceMetrics: {
+        correctAnswers: 0,
+        totalAttempts: 0,
+        averageResponseTime: 0,
+        streakCount: 0,
+        lastReviewDates: {},
+      },
+      difficultyLevel: "normal",
+      recommendedTopics: [],
+      reviewSchedule: [],
     });
     setSkills({
+      // Core concepts
       variables: 0,
       conditionals: 0,
       loops: 0,
       functions: 0,
       dataStructures: 0,
+
+      // Basic Languages & technologies
       html: 0,
       css: 0,
       javascript: 0,
@@ -370,6 +414,23 @@ const EnhancedCodeQuest = () => {
       django: 0,
       flask: 0,
       tailwind: 0,
+
+      // Expanded Language Tracks
+      java: 0,
+      ruby: 0,
+      go: 0,
+      csharp: 0,
+      swift: 0,
+
+      // Specialized Paths
+      dataScience: 0,
+      mobileDev: 0,
+      gameDev: 0,
+
+      // Advanced Topics
+      designPatterns: 0,
+      algorithms: 0,
+      systemArchitecture: 0,
     });
     setCompletedQuests([]);
 
@@ -474,7 +535,7 @@ const EnhancedCodeQuest = () => {
   };
 
   const allLanguageQuestsCompleted = () => {
-    const languageQuests = [
+    const basicLanguageQuests = [
       "html",
       "css",
       "javascript",
@@ -484,7 +545,26 @@ const EnhancedCodeQuest = () => {
       "flask",
       "tailwind",
     ];
-    return languageQuests.every((quest) => skills[quest] > 0);
+
+    // For the final project, we only require the basic languages to be completed
+    return basicLanguageQuests.every((quest) => skills[quest] > 0);
+  };
+
+  const allExpandedLanguageQuestsCompleted = () => {
+    const expandedLanguageQuests = ["java", "ruby", "go", "csharp", "swift"];
+    return expandedLanguageQuests.every((quest) => skills[quest] > 0);
+  };
+
+  const allSpecializedPathsCompleted = () => {
+    const specializedPaths = [
+      "dataScience",
+      "mobileDev",
+      "gameDev",
+      "designPatterns",
+      "algorithms",
+      "systemArchitecture",
+    ];
+    return specializedPaths.every((quest) => skills[quest] > 0);
   };
 
   // Theme-specific styles
@@ -536,6 +616,220 @@ const EnhancedCodeQuest = () => {
     const minutes = Math.floor((seconds % 3600) / 60);
 
     return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+  };
+
+  // Adaptive Learning System functions
+
+  // Update performance metrics when a challenge is attempted
+  const updatePerformanceMetrics = (isCorrect, responseTimeSeconds, skill) => {
+    setPlayerStats((prevStats) => {
+      // Initialize metrics if they don't exist
+      const metrics = prevStats.performanceMetrics
+        ? { ...prevStats.performanceMetrics }
+        : {
+            correctAnswers: 0,
+            totalAttempts: 0,
+            averageResponseTime: 0,
+            streakCount: 0,
+            lastReviewDates: {},
+          };
+
+      // Update metrics
+      metrics.totalAttempts += 1;
+      if (isCorrect) {
+        metrics.correctAnswers += 1;
+        metrics.streakCount += 1;
+      } else {
+        metrics.streakCount = 0;
+      }
+
+      // Update average response time
+      const totalTime =
+        metrics.averageResponseTime * (metrics.totalAttempts - 1) +
+        responseTimeSeconds;
+      metrics.averageResponseTime = totalTime / metrics.totalAttempts;
+
+      // Update last review date for this skill
+      metrics.lastReviewDates = {
+        ...metrics.lastReviewDates,
+        [skill]: new Date().toISOString(),
+      };
+
+      return {
+        ...prevStats,
+        performanceMetrics: metrics,
+      };
+    });
+
+    // Auto-save after updating metrics
+    if (isAutoSaveEnabled) {
+      saveProgress(true);
+    }
+
+    // After updating metrics, adjust difficulty and generate recommendations
+    adjustDifficulty();
+    generateRecommendations();
+    updateSpacedRepetition();
+  };
+
+  // Adjust difficulty based on performance
+  const adjustDifficulty = () => {
+    setPlayerStats((prevStats) => {
+      // If no metrics exist yet, keep difficulty at normal
+      if (!prevStats.performanceMetrics) {
+        return {
+          ...prevStats,
+          difficultyLevel: "normal",
+        };
+      }
+
+      const metrics = prevStats.performanceMetrics;
+      let newDifficulty = prevStats.difficultyLevel || "normal";
+
+      // Calculate success rate
+      const successRate =
+        metrics.totalAttempts > 0
+          ? metrics.correctAnswers / metrics.totalAttempts
+          : 0;
+
+      // Adjust difficulty based on success rate and streak
+      if (successRate > 0.85 && metrics.streakCount > 5) {
+        newDifficulty = "hard";
+      } else if (successRate < 0.4 && metrics.streakCount === 0) {
+        newDifficulty = "easy";
+      } else {
+        newDifficulty = "normal";
+      }
+
+      return {
+        ...prevStats,
+        difficultyLevel: newDifficulty,
+      };
+    });
+  };
+
+  // Generate AI recommendations based on performance
+  const generateRecommendations = () => {
+    setPlayerStats((prevStats) => {
+      // If no metrics exist yet, return empty recommendations
+      if (!prevStats.performanceMetrics) {
+        return {
+          ...prevStats,
+          recommendedTopics: [],
+        };
+      }
+
+      const metrics = prevStats.performanceMetrics;
+      const allSkills = Object.keys(skills);
+      let recommendations = [];
+
+      // Find skills with low proficiency (value < 2)
+      const lowProficiencySkills = allSkills.filter(
+        (skill) => skills[skill] < 2,
+      );
+
+      // Find skills that haven't been reviewed recently
+      const notRecentlyReviewed = allSkills.filter((skill) => {
+        const lastReview = metrics.lastReviewDates
+          ? metrics.lastReviewDates[skill]
+          : null;
+        if (!lastReview) return true;
+
+        const daysSinceReview =
+          (new Date() - new Date(lastReview)) / (1000 * 60 * 60 * 24);
+        return daysSinceReview > 7; // More than a week
+      });
+
+      // Prioritize skills that are both low proficiency and not recently reviewed
+      const highPrioritySkills = lowProficiencySkills.filter((skill) =>
+        notRecentlyReviewed.includes(skill),
+      );
+
+      // Add high priority skills first, then low proficiency, then not recently reviewed
+      recommendations = [
+        ...highPrioritySkills,
+        ...lowProficiencySkills.filter(
+          (skill) => !highPrioritySkills.includes(skill),
+        ),
+        ...notRecentlyReviewed.filter(
+          (skill) =>
+            !highPrioritySkills.includes(skill) &&
+            !lowProficiencySkills.includes(skill),
+        ),
+      ];
+
+      // Limit to top 5 recommendations
+      recommendations = recommendations.slice(0, 5);
+
+      return {
+        ...prevStats,
+        recommendedTopics: recommendations,
+      };
+    });
+  };
+
+  // Update spaced repetition schedule
+  const updateSpacedRepetition = () => {
+    setPlayerStats((prevStats) => {
+      // If no metrics exist yet, return empty schedule
+      if (
+        !prevStats.performanceMetrics ||
+        !prevStats.performanceMetrics.lastReviewDates
+      ) {
+        return {
+          ...prevStats,
+          reviewSchedule: [],
+        };
+      }
+
+      const metrics = prevStats.performanceMetrics;
+      const allSkills = Object.keys(skills);
+      let reviewSchedule = [];
+
+      // Calculate review intervals based on skill level and last review date
+      allSkills.forEach((skill) => {
+        const skillLevel = skills[skill];
+        const lastReview = metrics.lastReviewDates[skill];
+
+        if (!lastReview) {
+          // Never reviewed, add to schedule
+          reviewSchedule.push(skill);
+          return;
+        }
+
+        // Calculate days since last review
+        const daysSinceReview =
+          (new Date() - new Date(lastReview)) / (1000 * 60 * 60 * 24);
+
+        // Determine review interval based on skill level (spaced repetition)
+        // Higher skill level = longer interval between reviews
+        let reviewInterval;
+        switch (skillLevel) {
+          case 0:
+            reviewInterval = 1;
+            break; // Review daily
+          case 1:
+            reviewInterval = 3;
+            break; // Review every 3 days
+          case 2:
+            reviewInterval = 7;
+            break; // Review weekly
+          default:
+            reviewInterval = 14;
+            break; // Review bi-weekly
+        }
+
+        // If it's time to review, add to schedule
+        if (daysSinceReview >= reviewInterval) {
+          reviewSchedule.push(skill);
+        }
+      });
+
+      return {
+        ...prevStats,
+        reviewSchedule,
+      };
+    });
   };
 
   // Game scenes
@@ -739,7 +1033,7 @@ const EnhancedCodeQuest = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             {/* Main quests panel */}
             <div className={`${currentTheme.panel} p-6 rounded-xl col-span-1`}>
               <h2 className={`text-2xl font-bold mb-4 ${currentTheme.accent}`}>
@@ -921,8 +1215,170 @@ const EnhancedCodeQuest = () => {
             </div>
           </div>
 
-          {/* Code Playground Button - Add this to your hub scene */}
-          <div className={`${currentTheme.panel} p-6 rounded-xl mt-4`}>
+          {/* Expanded Language Tracks */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* Additional Languages */}
+            <div className={`${currentTheme.panel} p-6 rounded-xl col-span-1`}>
+              <h2 className={`text-2xl font-bold mb-4 ${currentTheme.accent}`}>
+                Expanded Language Tracks
+              </h2>
+              <p className="mb-4">
+                Explore additional programming languages and paradigms:
+              </p>
+
+              <div className="space-y-3">
+                <button
+                  onClick={() => goToScene("java")}
+                  className={`w-full ${skills.java > 0 ? "bg-green-600 hover:bg-green-700" : currentTheme.primary} text-white p-3 rounded-lg flex justify-between items-center`}
+                  disabled={skills.java > 3 || !allMainQuestsCompleted()}
+                >
+                  <span>Java</span>
+                  {!allMainQuestsCompleted() && <span>🔒</span>}
+                  {skills.java > 0 && <span>✓</span>}
+                </button>
+
+                <button
+                  onClick={() => goToScene("ruby")}
+                  className={`w-full ${skills.ruby > 0 ? "bg-green-600 hover:bg-green-700" : currentTheme.primary} text-white p-3 rounded-lg flex justify-between items-center`}
+                  disabled={skills.ruby > 3 || !allMainQuestsCompleted()}
+                >
+                  <span>Ruby</span>
+                  {!allMainQuestsCompleted() && <span>🔒</span>}
+                  {skills.ruby > 0 && <span>✓</span>}
+                </button>
+
+                <button
+                  onClick={() => goToScene("go")}
+                  className={`w-full ${skills.go > 0 ? "bg-green-600 hover:bg-green-700" : currentTheme.primary} text-white p-3 rounded-lg flex justify-between items-center`}
+                  disabled={skills.go > 3 || !allMainQuestsCompleted()}
+                >
+                  <span>Go</span>
+                  {!allMainQuestsCompleted() && <span>🔒</span>}
+                  {skills.go > 0 && <span>✓</span>}
+                </button>
+
+                <button
+                  onClick={() => goToScene("csharp")}
+                  className={`w-full ${skills.csharp > 0 ? "bg-green-600 hover:bg-green-700" : currentTheme.primary} text-white p-3 rounded-lg flex justify-between items-center`}
+                  disabled={skills.csharp > 3 || !allMainQuestsCompleted()}
+                >
+                  <span>C#</span>
+                  {!allMainQuestsCompleted() && <span>🔒</span>}
+                  {skills.csharp > 0 && <span>✓</span>}
+                </button>
+
+                <button
+                  onClick={() => goToScene("swift")}
+                  className={`w-full ${skills.swift > 0 ? "bg-green-600 hover:bg-green-700" : currentTheme.primary} text-white p-3 rounded-lg flex justify-between items-center`}
+                  disabled={skills.swift > 3 || !allMainQuestsCompleted()}
+                >
+                  <span>Swift</span>
+                  {!allMainQuestsCompleted() && <span>🔒</span>}
+                  {skills.swift > 0 && <span>✓</span>}
+                </button>
+              </div>
+            </div>
+
+            {/* Specialized Paths */}
+            <div className={`${currentTheme.panel} p-6 rounded-xl col-span-1`}>
+              <h2 className={`text-2xl font-bold mb-4 ${currentTheme.accent}`}>
+                Specialized Paths
+              </h2>
+              <p className="mb-4">
+                Master specialized domains and advanced programming concepts:
+              </p>
+
+              <div className="space-y-3">
+                <button
+                  onClick={() => goToScene("dataScience")}
+                  className={`w-full ${skills.dataScience > 0 ? "bg-green-600 hover:bg-green-700" : currentTheme.primary} text-white p-3 rounded-lg flex justify-between items-center`}
+                  disabled={skills.dataScience > 3 || !allMainQuestsCompleted()}
+                >
+                  <span>Data Science</span>
+                  {!allMainQuestsCompleted() && <span>🔒</span>}
+                  {skills.dataScience > 0 && <span>✓</span>}
+                </button>
+
+                <button
+                  onClick={() => goToScene("mobileDev")}
+                  className={`w-full ${skills.mobileDev > 0 ? "bg-green-600 hover:bg-green-700" : currentTheme.primary} text-white p-3 rounded-lg flex justify-between items-center`}
+                  disabled={skills.mobileDev > 3 || !allMainQuestsCompleted()}
+                >
+                  <span>Mobile Development</span>
+                  {!allMainQuestsCompleted() && <span>🔒</span>}
+                  {skills.mobileDev > 0 && <span>✓</span>}
+                </button>
+
+                <button
+                  onClick={() => goToScene("gameDev")}
+                  className={`w-full ${skills.gameDev > 0 ? "bg-green-600 hover:bg-green-700" : currentTheme.primary} text-white p-3 rounded-lg flex justify-between items-center`}
+                  disabled={skills.gameDev > 3 || !allMainQuestsCompleted()}
+                >
+                  <span>Game Development</span>
+                  {!allMainQuestsCompleted() && <span>🔒</span>}
+                  {skills.gameDev > 0 && <span>✓</span>}
+                </button>
+
+                <button
+                  onClick={() => goToScene("designPatterns")}
+                  className={`w-full ${skills.designPatterns > 0 ? "bg-green-600 hover:bg-green-700" : currentTheme.primary} text-white p-3 rounded-lg flex justify-between items-center`}
+                  disabled={
+                    skills.designPatterns > 3 || !allMainQuestsCompleted()
+                  }
+                >
+                  <span>Design Patterns</span>
+                  {!allMainQuestsCompleted() && <span>🔒</span>}
+                  {skills.designPatterns > 0 && <span>✓</span>}
+                </button>
+
+                <button
+                  onClick={() => goToScene("algorithms")}
+                  className={`w-full ${skills.algorithms > 0 ? "bg-green-600 hover:bg-green-700" : currentTheme.primary} text-white p-3 rounded-lg flex justify-between items-center`}
+                  disabled={skills.algorithms > 3 || !allMainQuestsCompleted()}
+                >
+                  <span>Algorithms & Data Structures</span>
+                  {!allMainQuestsCompleted() && <span>🔒</span>}
+                  {skills.algorithms > 0 && <span>✓</span>}
+                </button>
+
+                <button
+                  onClick={() => goToScene("systemArchitecture")}
+                  className={`w-full ${skills.systemArchitecture > 0 ? "bg-green-600 hover:bg-green-700" : currentTheme.primary} text-white p-3 rounded-lg flex justify-between items-center`}
+                  disabled={
+                    skills.systemArchitecture > 3 || !allMainQuestsCompleted()
+                  }
+                >
+                  <span>System Architecture</span>
+                  {!allMainQuestsCompleted() && <span>🔒</span>}
+                  {skills.systemArchitecture > 0 && <span>✓</span>}
+                </button>
+
+                <button
+                  onClick={() =>
+                    allLanguageQuestsCompleted() &&
+                    allExpandedLanguageQuestsCompleted() &&
+                    allSpecializedPathsCompleted()
+                      ? goToScene("masterProgrammer")
+                      : null
+                  }
+                  className={`w-full mt-4 ${allLanguageQuestsCompleted() && allExpandedLanguageQuestsCompleted() && allSpecializedPathsCompleted() ? currentTheme.secondary : "bg-gray-400"} text-white p-3 rounded-lg flex justify-between items-center`}
+                  disabled={
+                    !allLanguageQuestsCompleted() ||
+                    !allExpandedLanguageQuestsCompleted() ||
+                    !allSpecializedPathsCompleted()
+                  }
+                >
+                  <span>Become a Master Programmer</span>
+                  {(!allLanguageQuestsCompleted() ||
+                    !allExpandedLanguageQuestsCompleted() ||
+                    !allSpecializedPathsCompleted()) && <span>🔒</span>}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Code Playground Button */}
+          <div className={`${currentTheme.panel} p-6 rounded-xl mb-6`}>
             <div className="flex items-center justify-between">
               <div>
                 <h2
@@ -1129,26 +1585,327 @@ const EnhancedCodeQuest = () => {
                 >
                   Skills Progress
                 </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {Object.entries(skills).map(([skill, level]) => (
-                    <div key={skill} className="border rounded p-2">
-                      <p className="font-bold capitalize">{skill}</p>
-                      <div className="flex items-center gap-1">
-                        {[...Array(3)].map((_, i) => (
-                          <div
-                            key={i}
-                            className={`w-4 h-4 rounded-full ${i < level ? "bg-green-600" : "bg-gray-300"}`}
-                          ></div>
-                        ))}
+
+                {/* Core Concepts */}
+                <h4 className="font-semibold text-lg mb-2">Core Concepts</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                  {Object.entries(skills)
+                    .filter(([skill]) =>
+                      [
+                        "variables",
+                        "conditionals",
+                        "loops",
+                        "functions",
+                        "dataStructures",
+                      ].includes(skill),
+                    )
+                    .map(([skill, level]) => (
+                      <div key={skill} className="border rounded p-2">
+                        <p className="font-bold capitalize">
+                          {skill === "dataStructures"
+                            ? "Data Structures"
+                            : skill}
+                        </p>
+                        <div className="flex items-center gap-1">
+                          {[...Array(3)].map((_, i) => (
+                            <div
+                              key={i}
+                              className={`w-4 h-4 rounded-full ${i < level ? "bg-green-600" : "bg-gray-300"}`}
+                            ></div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                </div>
+
+                {/* Basic Languages */}
+                <h4 className="font-semibold text-lg mb-2">
+                  Basic Languages & Technologies
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                  {Object.entries(skills)
+                    .filter(([skill]) =>
+                      [
+                        "html",
+                        "css",
+                        "javascript",
+                        "python",
+                        "react",
+                        "django",
+                        "flask",
+                        "tailwind",
+                      ].includes(skill),
+                    )
+                    .map(([skill, level]) => (
+                      <div key={skill} className="border rounded p-2">
+                        <p className="font-bold capitalize">{skill}</p>
+                        <div className="flex items-center gap-1">
+                          {[...Array(3)].map((_, i) => (
+                            <div
+                              key={i}
+                              className={`w-4 h-4 rounded-full ${i < level ? "bg-green-600" : "bg-gray-300"}`}
+                            ></div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
+                {/* Expanded Language Tracks */}
+                <h4 className="font-semibold text-lg mb-2">
+                  Expanded Language Tracks
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                  {Object.entries(skills)
+                    .filter(([skill]) =>
+                      ["java", "ruby", "go", "csharp", "swift"].includes(skill),
+                    )
+                    .map(([skill, level]) => (
+                      <div key={skill} className="border rounded p-2">
+                        <p className="font-bold capitalize">
+                          {skill === "csharp" ? "C#" : skill}
+                        </p>
+                        <div className="flex items-center gap-1">
+                          {[...Array(3)].map((_, i) => (
+                            <div
+                              key={i}
+                              className={`w-4 h-4 rounded-full ${i < level ? "bg-green-600" : "bg-gray-300"}`}
+                            ></div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
+                {/* Specialized Paths */}
+                <h4 className="font-semibold text-lg mb-2">
+                  Specialized Paths
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                  {Object.entries(skills)
+                    .filter(([skill]) =>
+                      ["dataScience", "mobileDev", "gameDev"].includes(skill),
+                    )
+                    .map(([skill, level]) => (
+                      <div key={skill} className="border rounded p-2">
+                        <p className="font-bold capitalize">
+                          {skill === "dataScience"
+                            ? "Data Science"
+                            : skill === "mobileDev"
+                              ? "Mobile Dev"
+                              : skill === "gameDev"
+                                ? "Game Dev"
+                                : skill}
+                        </p>
+                        <div className="flex items-center gap-1">
+                          {[...Array(3)].map((_, i) => (
+                            <div
+                              key={i}
+                              className={`w-4 h-4 rounded-full ${i < level ? "bg-green-600" : "bg-gray-300"}`}
+                            ></div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
+                {/* Advanced Topics */}
+                <h4 className="font-semibold text-lg mb-2">Advanced Topics</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+                  {Object.entries(skills)
+                    .filter(([skill]) =>
+                      [
+                        "designPatterns",
+                        "algorithms",
+                        "systemArchitecture",
+                      ].includes(skill),
+                    )
+                    .map(([skill, level]) => (
+                      <div key={skill} className="border rounded p-2">
+                        <p className="font-bold capitalize">
+                          {skill === "designPatterns"
+                            ? "Design Patterns"
+                            : skill === "systemArchitecture"
+                              ? "System Architecture"
+                              : skill}
+                        </p>
+                        <div className="flex items-center gap-1">
+                          {[...Array(3)].map((_, i) => (
+                            <div
+                              key={i}
+                              className={`w-4 h-4 rounded-full ${i < level ? "bg-green-600" : "bg-gray-300"}`}
+                            ></div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>
 
+            {/* Adaptive Learning System */}
+            <div className="mt-8 mb-8">
+              <h3 className={`text-xl font-bold ${currentTheme.accent} mb-4`}>
+                Adaptive Learning System
+              </h3>
+
+              {/* Current Difficulty */}
+              <div className="mb-4">
+                <h4 className="font-semibold text-lg mb-2">
+                  Current Difficulty
+                </h4>
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`px-3 py-1 rounded-full ${!playerStats.difficultyLevel || playerStats.difficultyLevel === "normal" ? "bg-blue-100 text-blue-800" : playerStats.difficultyLevel === "easy" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+                  >
+                    {!playerStats.difficultyLevel ||
+                    playerStats.difficultyLevel === "normal"
+                      ? "Normal"
+                      : playerStats.difficultyLevel === "easy"
+                        ? "Easy"
+                        : "Hard"}
+                  </div>
+                  <span className="text-sm text-gray-500">
+                    {!playerStats.difficultyLevel ||
+                    playerStats.difficultyLevel === "normal"
+                      ? "Standard difficulty balanced for most learners"
+                      : playerStats.difficultyLevel === "easy"
+                        ? "Challenges are simplified to help you learn the basics"
+                        : "Challenges are more complex to test your mastery"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Performance Metrics */}
+              <div className="mb-4">
+                <h4 className="font-semibold text-lg mb-2">
+                  Performance Metrics
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="border rounded p-3">
+                    <p className="text-sm text-gray-500">Success Rate</p>
+                    <p className="text-xl font-bold">
+                      {playerStats.performanceMetrics &&
+                      playerStats.performanceMetrics.totalAttempts > 0
+                        ? Math.round(
+                            (playerStats.performanceMetrics.correctAnswers /
+                              playerStats.performanceMetrics.totalAttempts) *
+                              100,
+                          )
+                        : 0}
+                      %
+                    </p>
+                  </div>
+                  <div className="border rounded p-3">
+                    <p className="text-sm text-gray-500">Current Streak</p>
+                    <p className="text-xl font-bold">
+                      {playerStats.performanceMetrics
+                        ? playerStats.performanceMetrics.streakCount
+                        : 0}
+                    </p>
+                  </div>
+                  <div className="border rounded p-3">
+                    <p className="text-sm text-gray-500">Avg. Response Time</p>
+                    <p className="text-xl font-bold">
+                      {playerStats.performanceMetrics &&
+                      playerStats.performanceMetrics.averageResponseTime > 0
+                        ? Math.round(
+                            playerStats.performanceMetrics.averageResponseTime,
+                          )
+                        : 0}
+                      s
+                    </p>
+                  </div>
+                  <div className="border rounded p-3">
+                    <p className="text-sm text-gray-500">Total Attempts</p>
+                    <p className="text-xl font-bold">
+                      {playerStats.performanceMetrics
+                        ? playerStats.performanceMetrics.totalAttempts
+                        : 0}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recommended Topics */}
+              <div className="mb-4">
+                <h4 className="font-semibold text-lg mb-2">
+                  Recommended Topics
+                </h4>
+                {playerStats.recommendedTopics &&
+                playerStats.recommendedTopics.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {playerStats.recommendedTopics.map((topic, index) => (
+                      <div
+                        key={index}
+                        className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm"
+                      >
+                        {topic === "dataStructures"
+                          ? "Data Structures"
+                          : topic === "designPatterns"
+                            ? "Design Patterns"
+                            : topic === "systemArchitecture"
+                              ? "System Architecture"
+                              : topic === "mobileDev"
+                                ? "Mobile Development"
+                                : topic === "dataScience"
+                                  ? "Data Science"
+                                  : topic === "gameDev"
+                                    ? "Game Development"
+                                    : topic === "csharp"
+                                      ? "C#"
+                                      : topic.charAt(0).toUpperCase() +
+                                        topic.slice(1)}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">
+                    Complete more challenges to get personalized recommendations
+                  </p>
+                )}
+              </div>
+
+              {/* Due for Review */}
+              <div className="mb-4">
+                <h4 className="font-semibold text-lg mb-2">Due for Review</h4>
+                {playerStats.reviewSchedule &&
+                playerStats.reviewSchedule.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {playerStats.reviewSchedule.map((topic, index) => (
+                      <div
+                        key={index}
+                        className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm"
+                      >
+                        {topic === "dataStructures"
+                          ? "Data Structures"
+                          : topic === "designPatterns"
+                            ? "Design Patterns"
+                            : topic === "systemArchitecture"
+                              ? "System Architecture"
+                              : topic === "mobileDev"
+                                ? "Mobile Development"
+                                : topic === "dataScience"
+                                  ? "Data Science"
+                                  : topic === "gameDev"
+                                    ? "Game Development"
+                                    : topic === "csharp"
+                                      ? "C#"
+                                      : topic.charAt(0).toUpperCase() +
+                                        topic.slice(1)}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">
+                    No topics currently due for review
+                  </p>
+                )}
+              </div>
+            </div>
+
             {/* Actions */}
-            <div className="mt-8 flex justify-center gap-4">
+            <div className="flex justify-center gap-4">
               <button
                 onClick={() => saveProgress()}
                 className={`${currentTheme.primary} text-white px-6 py-2 rounded-lg`}
@@ -1238,7 +1995,12 @@ const EnhancedCodeQuest = () => {
               // This is called when a player is working on a challenge
               // but hasn't completed it yet
             }}
-            onChallengeComplete={(challengeId, language) => {
+            onChallengeComplete={(
+              challengeId,
+              language,
+              responseTimeSeconds = 60,
+              isCorrect = true,
+            ) => {
               // Award XP and update progress
               if (language === "javascript")
                 updateSkill("javascript", skills.javascript + 1);
@@ -1251,6 +2013,24 @@ const EnhancedCodeQuest = () => {
               addToInventory(
                 `${language.charAt(0).toUpperCase() + language.slice(1)} Certificate`,
               );
+
+              // Update adaptive learning metrics
+              updatePerformanceMetrics(
+                isCorrect,
+                responseTimeSeconds,
+                language,
+              );
+
+              // Show difficulty-based message
+              if (playerStats.difficultyLevel === "easy") {
+                triggerAnimation(
+                  "Great job! Try a harder challenge next time!",
+                );
+              } else if (playerStats.difficultyLevel === "hard") {
+                triggerAnimation(
+                  "Impressive! You're mastering difficult content!",
+                );
+              }
 
               // Auto-save on challenge completion
               if (isAutoSaveEnabled) {
@@ -1362,8 +2142,36 @@ const EnhancedCodeQuest = () => {
             <div className="flex space-x-4">
               <button
                 onClick={() => {
+                  // Start time for response time tracking
+                  const startTime = new Date().getTime();
+
+                  // Update skill level
                   updateSkill("variables", skills.variables + 1);
+
+                  // Add to inventory
                   addToInventory("Variable Scroll");
+
+                  // Update adaptive learning metrics
+                  const responseTimeSeconds =
+                    (new Date().getTime() - startTime) / 1000;
+                  updatePerformanceMetrics(
+                    true,
+                    responseTimeSeconds,
+                    "variables",
+                  );
+
+                  // Show difficulty-based message
+                  if (playerStats.difficultyLevel === "easy") {
+                    triggerAnimation(
+                      "Great job! Try a harder challenge next time!",
+                    );
+                  } else if (playerStats.difficultyLevel === "hard") {
+                    triggerAnimation(
+                      "Impressive! You're mastering difficult content!",
+                    );
+                  }
+
+                  // Return to hub
                   goToScene("hub");
                 }}
                 className={`${currentTheme.primary} text-white px-6 py-2 rounded-lg`}
