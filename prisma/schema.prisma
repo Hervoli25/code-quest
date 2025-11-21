@@ -1,0 +1,156 @@
+// Code Quest - Prisma Schema for Neon Database
+// Code written and maintained by Elisee Kajingu
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["multiSchema", "postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  schemas  = ["auth", "public"]
+  extensions = [pgcrypto]
+}
+
+// User authentication
+model User {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()"))
+  email               String   @unique
+  encryptedPassword   String   @map("encrypted_password")
+  emailConfirmedAt    DateTime? @map("email_confirmed_at")
+  rawUserMetaData     Json?    @map("raw_user_meta_data") @default("{}")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  profile             Profile?
+  skills              Skills?
+  completedChallenges CompletedChallenge[]
+  performanceMetrics  PerformanceMetrics?
+  aiChallenges        AiChallenge[]
+
+  @@map("users")
+  @@schema("auth")
+}
+
+// User profile
+model Profile {
+  id                 String   @id
+  username           String?  @unique
+  avatarUrl          String?  @map("avatar_url")
+  website            String?
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  experience         Int      @default(0)
+  level              Int      @default(1)
+  skillPoints        Int      @default(0) @map("skill_points")
+  theme              String   @default("fantasy")
+  totalPlayTime      Int      @default(0) @map("total_play_time")
+  sessionsCompleted  Int      @default(0) @map("sessions_completed")
+
+  user               User     @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+  @@schema("public")
+}
+
+// Programming skills
+model Skills {
+  id         String   @id @default(uuid())
+  userId     String   @unique @map("user_id")
+  javascript Int      @default(0)
+  html       Int      @default(0)
+  css        Int      @default(0)
+  python     Int      @default(0)
+  java       Int      @default(0)
+  ruby       Int      @default(0)
+  go         Int      @default(0)
+  csharp     Int      @default(0)
+  swift      Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("skills")
+  @@schema("public")
+}
+
+// Coding challenges
+model Challenge {
+  id           String   @id @default(uuid())
+  title        String
+  description  String
+  difficulty   String
+  category     String
+  tags         String[] @default([])
+  xp           Int      @default(50)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  starterCode  String?  @map("starter_code")
+  solutionCode String?  @map("solution_code")
+  testCases    Json?    @map("test_cases")
+
+  completedBy  CompletedChallenge[]
+
+  @@map("challenges")
+  @@schema("public")
+}
+
+// Completed challenges
+model CompletedChallenge {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  challengeId String   @map("challenge_id")
+  language    String
+  code        String?
+  score       Int      @default(0)
+  timeTaken   Int      @default(0) @map("time_taken")
+  completedAt DateTime @default(now()) @map("completed_at")
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge   Challenge @relation(fields: [challengeId], references: [id])
+
+  @@map("completed_challenges")
+  @@schema("public")
+}
+
+// Performance metrics
+model PerformanceMetrics {
+  id                  String   @id @default(uuid())
+  userId              String   @unique @map("user_id")
+  totalAttempts       Int      @default(0) @map("total_attempts")
+  successfulAttempts  Int      @default(0) @map("successful_attempts")
+  averageResponseTime Float    @default(0) @map("average_response_time")
+  lastReviewDates     Json     @default("{}") @map("last_review_dates")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("performance_metrics")
+  @@schema("public")
+}
+
+// AI-generated challenges
+model AiChallenge {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  title       String
+  description  String
+  difficulty  String
+  category    String
+  language    String
+  starterCode String   @map("starter_code")
+  hints       Json     @default("[]")
+  tests       Json     @default("[]")
+  solution    String
+  createdAt   DateTime @default(now()) @map("created_at")
+  isPublic    Boolean  @default(false) @map("is_public")
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_challenges")
+  @@schema("public")
+}

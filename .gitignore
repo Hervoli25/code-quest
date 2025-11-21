@@ -37,6 +37,9 @@ dist-ssr
 # Supabase
 .supabase/
 
+# Neon
+.neon/
+
 # Testing
 coverage/
 
