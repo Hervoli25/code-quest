@@ -17,7 +17,10 @@ RUN npm install --save-dev vite @vitejs/plugin-react
 # Copy application code
 COPY . .
 
-# Build application
+# Accept build argument for database URL
+ARG VITE_DATABASE_URL
+
+# Build the application (Vite will embed VITE_* env vars)
 RUN npm run build
 
 # =========================================
